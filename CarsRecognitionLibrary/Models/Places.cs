@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ namespace CarsRecognitionLibrary.Models
     public class Place
     {
         public int Id { get; set; }
+        public DateTime? Time { get; set; }
         public int Pl1 { get; set; }
         public int Pl2 { get; set; }
         public int Pl3 { get; set; }

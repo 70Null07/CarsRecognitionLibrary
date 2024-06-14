@@ -1,7 +1,5 @@
 using CarsRecognitionLibrary.Models;
 using Compunet.YoloV8;
-using Microsoft.Win32;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -41,8 +39,6 @@ namespace CarsRecognitionLibrary
                 throw new FileNotFoundException("Файл " + imgPath + " не найден.");
 
             ParkingImg = new Bitmap(imgPath);
-            //AllSpaces allSpaces = new();
-            //ParkingSpaces = allSpaces.ParkingSpaces;
             var json = File.ReadAllText("./parkingplaces.json");
 
             var jObject = JObject.Parse(json);
@@ -63,7 +59,7 @@ namespace CarsRecognitionLibrary
             if (ParkingImg.Width != 640 || ParkingImg.Height != 640)
                 ResizeImage(640, 640);
 
-            using YoloV8 predictor = new("./best.onnx");
+            using YoloV8Predictor predictor = YoloV8Predictor.Create("./best.onnx");
             Compunet.YoloV8.Data.DetectionResult result = predictor.Detect("./cropped.jpg");
 
             List<int> placestaken = [];
@@ -114,6 +110,9 @@ namespace CarsRecognitionLibrary
                 pl++;
             }
 
+            //CurrentLoad["Time"] = SqlDateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            CurrentLoad["Time"] = DateTime.Now/*.ToString("yyyy-MM-dd HH:mm:ss")*/;
+
             _context.Places.Add(CurrentLoad);
             _context.SaveChanges();
 
@@ -130,7 +129,7 @@ namespace CarsRecognitionLibrary
             using Graphics g = Graphics.FromImage(resizedImg);
 
             //for (int i = 0; i < ParkingSpaces.Count; i++)
-            for (int i = 0; i < ParkingSpaces.Count(); i++)
+            for (int i = 0; i < ParkingSpaces.Count; i++)
             {
                 string prevPlState = _context.Places.OrderBy(x => x.Id).Last()["Pl" + (i + 1)]
                                                                        .ToString();
@@ -146,7 +145,7 @@ namespace CarsRecognitionLibrary
 
         private void ResizeImage(int width, int height)
         {
-            Bitmap cropped = new Bitmap(952, 612);
+            Bitmap cropped = new(952, 612);
 
             // Create a Graphics object to do the drawing, *with the new bitmap as the target*
             using (Graphics g = Graphics.FromImage(cropped))
